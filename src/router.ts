@@ -1,24 +1,28 @@
 
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import { RouteConfig } from './types';
 
 
 
 export class Router {
-    protected router = express.Router();
-    protected __routes: RouteConfig<any, any, any>[] = [];
+    private router = express.Router();
+    private routes: RouteConfig<any, any, any>[] = [];
 
-    get = this.router.get;
-    post = this.router.post;
-    put = this.router.put;
-    patch = this.router.patch;
-    delete = this.router.delete;
+    get = (path: string, ...handler: RequestHandler[]) => this.router.get(path, ...handler);
+    post = (path: string, ...handler: RequestHandler[]) => this.router.post(path, ...handler);
+    put = (path: string, ...handler: RequestHandler[]) => this.router.put(path, ...handler);
+    delete = (path: string, ...handler: RequestHandler[]) => this.router.delete(path, ...handler);
+    patch = (path: string, ...handler: RequestHandler[]) => this.router.patch(path, ...handler);
+    options = (path: string, ...handler: RequestHandler[]) => this.router.options(path, ...handler);
+    head = (path: string, ...handler: RequestHandler[]) => this.router.head(path, ...handler);
+
+
 
     getExpressRouter() {
         return this.router;
     }
     getRoutes() {
-        return this.__routes;
+        return this.routes;
     }
 
 
@@ -33,7 +37,7 @@ export class Router {
         summary,
         middlewares
     }: RouteConfig<TBody, TParams, TQuery>) {
-        this.__routes.push({
+        this.routes.push({
             method,
             path,
             handler,

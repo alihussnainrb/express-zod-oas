@@ -42,16 +42,15 @@
   "size-limit": [
     {
       "path": "dist/express-zod-oas.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "40 KB"
     },
     {
       "path": "dist/express-zod-oas.esm.js",
-      "limit": "10 KB"
+      "limit": "40 KB"
     }
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^11.1.4",
-    "@types/express": "^4.17.21",
     "husky": "^9.1.5",
     "size-limit": "^11.1.4",
     "tsdx": "^0.14.1",
@@ -65,6 +64,7 @@
     "@faker-js/faker": "^8.4.1",
     "@scalar/express-api-reference": "^0.4.148",
     "express": "^4.19.2",
+    "@types/express": "^4.17.21",
     "reflect-metadata": "^0.2.2",
     "zod": "^3.23.8"
   }

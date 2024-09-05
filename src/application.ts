@@ -5,9 +5,9 @@ import {
     ResponseConfig
 } from '@asteasolutions/zod-to-openapi';
 import express, { RequestHandler } from 'express';
-import { ApplicationOptions, RouteConfig } from './types';
-import { Router } from './router';
 import { mountDocs } from './docs';
+import { Router } from './router';
+import { ApplicationOptions, RouteConfig } from './types';
 // import { apiReference } from '@scalar/express-api-reference';
 
 
@@ -28,26 +28,29 @@ const defaultOptions: ApplicationOptions = {
 };
 
 class Application {
-    private app = express();
-    options: ApplicationOptions;
-    __routes: RouteConfig<any, any, any>[] = [];
+    private app: ReturnType<typeof express>;
+    private _options: ApplicationOptions;
+    private routes: RouteConfig<any, any, any>[] = [];
 
     constructor(options: Partial<ApplicationOptions> = defaultOptions) {
-        this.options = { ...defaultOptions, ...options };
-        this.app.get(this.options.jsonPath, (_, res) => res.send(this.getSpecAsJson()));
+        this.app = express();
+        this._options = { ...defaultOptions, ...options };
+        this.app.get(this._options.jsonPath, (_, res) => res.send(this.getSpecAsJson()));
         mountDocs(this.app, {
-            jsonPath: this.options.jsonPath,
-            docsTitle: this.options.openapi.info.title,
-            docs: this.options.docs,
+            jsonPath: this._options.jsonPath,
+            docsTitle: this._options.openapi.info.title,
+            docs: this._options.docs,
         })
-        // this.app.use(this.options.docsPath, apiReference({ theme: 'purple', spec: { url: this.options.jsonPath } }));
+        // this.app.use(this._options.docsPath, apiReference({ theme: 'purple', spec: { url: this._options.jsonPath } }));
     }
 
-    get = this.app.get;
-    post = this.app.post;
-    put = this.app.put;
-    patch = this.app.patch;
-    delete = this.app.delete;
+    get = (path: string, ...handler: RequestHandler[]) => this.app.get(path, ...handler);
+    post = (path: string, ...handler: RequestHandler[]) => this.app.post(path, ...handler);
+    put = (path: string, ...handler: RequestHandler[]) => this.app.put(path, ...handler);
+    delete = (path: string, ...handler: RequestHandler[]) => this.app.delete(path, ...handler);
+    patch = (path: string, ...handler: RequestHandler[]) => this.app.patch(path, ...handler);
+    options = (path: string, ...handler: RequestHandler[]) => this.app.options(path, ...handler);
+    head = (path: string, ...handler: RequestHandler[]) => this.app.head(path, ...handler);
 
 
     openapi<TBody, TParams, TQuery>({
@@ -61,7 +64,7 @@ class Application {
         summary,
         middlewares
     }: RouteConfig<TBody, TParams, TQuery>) {
-        this.__routes.push({
+        this.routes.push({
             method,
             path,
             handler,
@@ -129,7 +132,7 @@ class Application {
     }) {
         const { prefix, router, middlewares } = params
         this.app.use(prefix, ...(middlewares || []), router.getExpressRouter());
-        this.__routes.push(...router.getRoutes().map((route) => {
+        this.routes.push(...router.getRoutes().map((route) => {
             let parsedPrefix = prefix
             if (parsedPrefix.endsWith('/') && route.path.startsWith('/')) {
                 parsedPrefix = parsedPrefix.slice(0, -1);
@@ -143,7 +146,7 @@ class Application {
 
     private generateOpenApiSpecs() {
         const openapiRegistry = new OpenAPIRegistry();
-        this.__routes.forEach(({
+        this.routes.forEach(({
             method,
             path,
             validate,
@@ -155,7 +158,7 @@ class Application {
             const mappedResponses = Object.entries(responses || {})?.reduce(
                 (acc, [statusCode, resItem]) => {
                     let example = resItem.example;
-                    if (!example && this.options.generateMockExamples) {
+                    if (!example && this._options.generateMockExamples) {
                         example = generateMock(resItem.content.schema);
                     }
                     acc[String(statusCode)] = {
@@ -182,7 +185,7 @@ class Application {
                 request: {
                     ...(validate?.body?.content.schema && (() => {
                         let example = validate.body.example;
-                        if (!example && this.options.generateMockExamples) {
+                        if (!example && this._options.generateMockExamples) {
                             example = generateMock(validate.body.content.schema);
                         }
                         return {
@@ -206,7 +209,7 @@ class Application {
         const generator = new OpenApiGeneratorV31(this.generateOpenApiSpecs());
         return generator.generateDocument({
             openapi: "3.1.0",
-            ...this.options.openapi
+            ...this._options.openapi
         });
     }
 
@@ -220,4 +223,5 @@ class Application {
 }
 
 
-export { Application }
+export { Application };
+

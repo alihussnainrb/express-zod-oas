@@ -2,3 +2,8 @@
 .DS_Store
 node_modules
 dist
+backup.ts
+backup2.ts
+readme-gen.txt
+test.ts
+mvc
