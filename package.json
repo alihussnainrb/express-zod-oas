@@ -1,7 +1,8 @@
 {
   "name": "express-zod-oas",
   "displayName": "Express Zod OAS",
-  "version": "0.1.1",
+  "description": "Express.js wrapper integrating Zod for request validation and automatic OpenAPI doc generation. Features TypeScript support, middleware compatibility, and built-in documentation UI options.",
+  "version": "0.1.2",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
