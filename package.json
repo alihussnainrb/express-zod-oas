@@ -13,10 +13,6 @@
   "engines": {
     "node": ">=10"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/alihussnain/express-zod-oas"
-  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsdx watch",
